@@ -62,7 +62,6 @@ def mpd_song(room):
     client = MPDClient()
     client.connect('mpd.shack', mpd_room_to_port[room])
     song = client.currentsong()
-    print(song)
     client.close()
     client.disconnect()
     return jsonify(song)
