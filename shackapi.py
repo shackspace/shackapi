@@ -6,7 +6,13 @@ import json
 import requests
 
 app = Flask(__name__)
-mpd_room_to_port = {'lounge': 6600}
+mpd_room_to_port = {'lounge': 6600,
+                    'semi': 6601,
+                    'elab': 6602,
+                    'kueche': 6603,
+                    'crafting': 6604,
+                    'fablab': 6605,
+                    'workshop': 6606}
 
 @app.route('/')
 def hello():
