@@ -23,6 +23,16 @@ def portal_status():
     response = requests.get('http://portal.shack:8088/status').json()
     return jsonify(response) 
 
+@app.route('/mpd/<string:room>/status')
+def mpd_status(room):
+    if not room in mpd_room_to_port:
+        return jsonify({'error': 'unkown room'})
+    from mpd import MPDClient
+    client = MPDClient()
+    client.connect('mpd.shack', mpd_room_to_port[room])
+    state = client.status()['state']
+    return jsonify({'status': state})
+
 @app.route('/mpd/<string:room>/toggle')
 def mpd_toggle(room):
     if not room in mpd_room_to_port:
