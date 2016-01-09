@@ -6,6 +6,7 @@ import json
 import requests
 
 app = Flask(__name__)
+mpd_room_to_port = {'lounge': 6600}
 
 @app.route('/')
 def hello():
@@ -16,11 +17,13 @@ def portal_status():
     response = requests.get('http://portal.shack:8088/status').json()
     return jsonify(response) 
 
-@app.route('/mpd/toggle')
-def mpd_toggle():
+@app.route('/mpd/<string:room>/toggle')
+def mpd_toggle(room):
+    if not room in mpd_room_to_port:
+        return jsonify({'error': 'unkown room'})
     from mpd import MPDClient
     client = MPDClient()
-    client.connect('mpd.shack', 6600)
+    client.connect('mpd.shack', mpd_room_to_port[room])
     state = client.status()['state']
     if state == 'play':
         client.pause()
@@ -35,16 +38,25 @@ def mpd_toggle():
                  'new_state': new_state})
     return response 
 
-@app.route('/mpd/song')
-def mpd_song():
+@app.route('/mpd/<string:room>/song')
+def mpd_song(room):
+    if not room in mpd_room_to_port:
+        return jsonify({'error': 'unkown room'})
     from mpd import MPDClient
     client = MPDClient()
-    client.connect('mpd.shack', 6600)
+    client.connect('mpd.shack', mpd_room_to_port[room])
     song = client.currentsong()
     print(song)
     client.close()
     client.disconnect()
     return jsonify(song)
+
+@app.route('/trash/dates')
+def trash_date():
+    resp = {}
+    r = requests.get("https://meinsack.click/v1/70327/Ulmer%20Stra%C3%9Fe/")
+    resp['next_yellow'] = r.json().get('dates')[0]
+    return jsonify(resp)
 
 if __name__ == "__main__":
         app.debug = True
